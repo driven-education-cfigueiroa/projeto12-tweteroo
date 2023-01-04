@@ -8,6 +8,7 @@ class Server {
         this.app.use(express.json());
 
         this.users = [];
+        this.tweets = [];
 
         this.spaceOnly = (...args) => !args.every(arg => arg.trim());
 
@@ -31,7 +32,23 @@ class Server {
             return res.send('OK');
         });
 
-        this.app.post('/tweets', (_req, res) => {
+        this.app.post('/tweets', (req, res) => {
+            if (!req.body?.username || !req.body?.tweet) {
+                return res.status(400).send('Todos os campos são obrigatórios!');
+            }
+
+            const { username, tweet } = req.body;
+
+            if (this.spaceOnly(username, tweet)) {
+                return res.status(400).send({ error: 'Todos os campos são obrigatórios!' });
+            }
+
+            if (!this.users.find(user => user.username === username)) {
+                return res.send('UNAUTHORIZED');
+            }
+
+            const newTweet = { username, tweet };
+            this.tweets.push(newTweet);
             return res.send('OK');
         });
 
