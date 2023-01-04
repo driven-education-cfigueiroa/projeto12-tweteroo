@@ -53,7 +53,12 @@ class Server {
         });
 
         this.app.get('/tweets', (_req, res) => {
-            return res.send('OK');
+            const lastTweets = this.tweets.slice(-10);
+            const tweetsWithAvatar = lastTweets.map(tweet => {
+                const user = this.users.find(user => user.username === tweet.username);
+                return { ...tweet, avatar: user.avatar };
+            });
+            res.send(tweetsWithAvatar);
         });
     }
 
