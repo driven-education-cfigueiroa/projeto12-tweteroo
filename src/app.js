@@ -33,7 +33,7 @@ class Server {
 
             const newUser = { username, avatar };
             this.users.push(newUser);
-            return res.send('OK');
+            return res.status(201).send('OK');
         });
 
         this.app.post('/tweets', (req, res) => {
@@ -52,12 +52,12 @@ class Server {
             }
 
             if (!this.users.find(user => user.username === username)) {
-                return res.send('UNAUTHORIZED');
+                return res.status(400).send('UNAUTHORIZED');
             }
 
             const newTweet = { username, tweet };
             this.tweets.push(newTweet);
-            return res.send('OK');
+            return res.status(201).send('OK');
         });
 
         this.app.get('/tweets', (_req, res) => {
