@@ -19,6 +19,10 @@ class Server {
 
             const { username, avatar } = req.body;
 
+            if (typeof username !== 'string' || typeof avatar !== 'string') {
+                return res.sendStatus(400);
+            }
+
             if (this.spaceOnly(username, avatar)) {
                 return res.status(400).send('Todos os campos são obrigatórios!');
             }
@@ -38,6 +42,10 @@ class Server {
             }
 
             const { username, tweet } = req.body;
+
+            if (typeof username !== 'string' || typeof tweet !== 'string') {
+                return res.sendStatus(400);
+            }
 
             if (this.spaceOnly(username, tweet)) {
                 return res.status(400).send({ error: 'Todos os campos são obrigatórios!' });
