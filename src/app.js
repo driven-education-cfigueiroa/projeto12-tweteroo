@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { query } from 'express';
 import cors from 'cors';
 
 class Server {
@@ -60,7 +60,21 @@ class Server {
             return res.status(201).send('OK');
         });
 
-        this.app.get('/tweets', (_req, res) => {
+        this.app.get('/tweets', (req, res) => {
+            if (req.query.page !== undefined) {
+                if (+req.query.page <= 0 || isNaN(+req.query.page)) {
+                    return res.status(400).send('Informe uma página válida!');
+                }
+                const page = req.query.page;
+                const tweetsPerPage = 10;
+                const offset = tweetsPerPage * page;
+                const lastTweets = this.tweets.slice(-offset);
+                const lastTweetsWithAvatar = lastTweets.map(tweet => {
+                    const user = this.users.find(user => user.username === tweet.username);
+                    return { ...tweet, avatar: user.avatar };
+                });
+                return res.send(lastTweetsWithAvatar);
+            }
             const lastTweets = this.tweets.slice(-10);
             const lastTweetsWithAvatar = lastTweets.map(tweet => {
                 const user = this.users.find(user => user.username === tweet.username);
