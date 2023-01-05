@@ -92,6 +92,12 @@ class Server {
             });
             res.send(userTweetsWithAvatar);
         });
+
+        this.app.get('/wipedata', (_req, res) => {
+            this.users = [];
+            this.tweets = [];
+            res.sendStatus(200);
+        });
     }
 
     listen(port, callback) {
