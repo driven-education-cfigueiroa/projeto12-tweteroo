@@ -46,7 +46,7 @@ class Server {
             }
 
             const { tweet } = req.body;
-            
+
             const username = req.headers.user ? req.headers.user : req.body.username;
 
             if (typeof username !== 'string' || typeof tweet !== 'string') {
@@ -67,14 +67,14 @@ class Server {
         });
 
         this.app.get('/tweets', (req, res) => {
-            if (req.query.page !== undefined) {
+            if (typeof req.query.page === 'string') {
                 if (+req.query.page <= 0 || isNaN(+req.query.page)) {
                     return res.status(400).send('Informe uma página válida!');
                 }
                 const page = req.query.page;
                 const tweetsPerPage = 10;
                 const offset = tweetsPerPage * page;
-                const lastTweets = this.tweets.slice(-offset);
+                const lastTweets = this.tweets.slice(offset - tweetsPerPage, offset);
                 const lastTweetsWithAvatar = lastTweets.map(tweet => {
                     const user = this.users.find(user => user.username === tweet.username);
                     return { ...tweet, avatar: user.avatar };
