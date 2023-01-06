@@ -37,11 +37,17 @@ class Server {
         });
 
         this.app.post('/tweets', (req, res) => {
-            if (!req.body?.username || !req.body?.tweet) {
+            if (!req.body?.username && !req.headers.user) {
                 return res.status(400).send('Todos os campos são obrigatórios!');
             }
 
-            const { username, tweet } = req.body;
+            if (!req.body?.tweet) {
+                return res.status(400).send('Todos os campos são obrigatórios!');
+            }
+
+            const { tweet } = req.body;
+            
+            const username = req.headers.user ? req.headers.user : req.body.username;
 
             if (typeof username !== 'string' || typeof tweet !== 'string') {
                 return res.sendStatus(400);
