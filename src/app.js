@@ -1,4 +1,4 @@
-import express, { query } from 'express';
+import express from 'express';
 import cors from 'cors';
 
 class Server {
@@ -9,26 +9,17 @@ class Server {
 
         this.users = [];
         this.tweets = [];
-
-        this.spaceOnly = (...args) => !args.every(arg => arg.trim());
+        this.errorFieldsRequired = 'Todos os campos são obrigatórios!';
 
         this.app.post('/sign-up', (req, res) => {
             if (!req.body?.username || !req.body?.avatar) {
-                return res.status(400).send('Todos os campos são obrigatórios!');
+                return res.status(400).send(this.errorFieldsRequired);
             }
 
             const { username, avatar } = req.body;
 
             if (typeof username !== 'string' || typeof avatar !== 'string') {
-                return res.sendStatus(400);
-            }
-
-            if (this.spaceOnly(username, avatar)) {
-                return res.status(400).send('Todos os campos são obrigatórios!');
-            }
-
-            if (this.users.find(user => user.username === username)) {
-                return res.status(400).send('O usuário já existe!');
+                return res.status(400).send('Todos os campos devem ser strings!');
             }
 
             const newUser = { username, avatar };
@@ -38,11 +29,11 @@ class Server {
 
         this.app.post('/tweets', (req, res) => {
             if (!req.body?.username && !req.headers.user) {
-                return res.status(400).send('Todos os campos são obrigatórios!');
+                return res.status(400).send(this.errorFieldsRequired);
             }
 
             if (!req.body?.tweet) {
-                return res.status(400).send('Todos os campos são obrigatórios!');
+                return res.status(400).send(this.errorFieldsRequired);
             }
 
             const { tweet } = req.body;
@@ -53,12 +44,8 @@ class Server {
                 return res.sendStatus(400);
             }
 
-            if (this.spaceOnly(username, tweet)) {
-                return res.status(400).send({ error: 'Todos os campos são obrigatórios!' });
-            }
-
             if (!this.users.find(user => user.username === username)) {
-                return res.status(400).send('UNAUTHORIZED');
+                return res.status(401).send('UNAUTHORIZED');
             }
 
             const newTweet = { username, tweet };
@@ -86,7 +73,7 @@ class Server {
                 const user = this.users.find(user => user.username === tweet.username);
                 return { ...tweet, avatar: user.avatar };
             });
-            res.send(lastTweetsWithAvatar);
+            return res.send(lastTweetsWithAvatar);
         });
 
         this.app.get('/tweets/:username', (req, res) => {
@@ -96,13 +83,13 @@ class Server {
                 const user = this.users.find(user => user.username === tweet.username);
                 return { ...tweet, avatar: user.avatar };
             });
-            res.send(userTweetsWithAvatar);
+            return res.send(userTweetsWithAvatar);
         });
 
         this.app.get('/wipedata', (_req, res) => {
             this.users = [];
             this.tweets = [];
-            res.sendStatus(200);
+            return res.sendStatus(200);
         });
     }
 
